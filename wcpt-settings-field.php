@@ -28,7 +28,7 @@ class Wext_Wc_Product_Tab {
     }
 
     function admin_menu() {
-        add_menu_page( 'Tab Settings', 'Tab Settings', 'manage_options', 'wext_wc_tab_settings', array($this, 'plugin_page'), 'dashicons-editor-table', '55.7' );
+        add_submenu_page( 'woocommerce', 'Tabs by Category', 'Tabs by Category', 'manage_options', 'wext_wc_tab_settings', array($this, 'plugin_page'), 'dashicons-editor-table', '55.7' );
     }
 
     function get_settings_sections() {
@@ -62,8 +62,16 @@ class Wext_Wc_Product_Tab {
                     'sanitize_callback' => 'intval'
                 ),
                 array(
+                    'name'              => 'wext_wcpt_column_number',
+                    'label'             => __( 'Columns', 'wexteam' ),
+                    'desc'              => __( 'You can set how many columns of products to show. Default is 4 columns', 'wexteam' ),
+                    'type'              => 'number',
+                    'default'           => '4',
+                    'sanitize_callback' => 'intval'
+                ),
+                array(
                     'name'              => 'wext_wcpt_product_number',
-                    'label'             => __( 'Product Number', 'wexteam' ),
+                    'label'             => __( 'Products Per Tab', 'wexteam' ),
                     'desc'              => __( 'You can set how many product show under a tab. Default is 4 product', 'wexteam' ),
                     'type'              => 'number',
                     'default'           => '4',
@@ -92,6 +100,20 @@ class Wext_Wc_Product_Tab {
                         'DESC'=> 'Descending '
                     ),
                     'default' => 'ASC',
+                ),
+                array(
+                    'name'    => 'wext_wcpt_tab_prefix',
+                    'label'   => __( 'Tabs Prefix', 'wexteam' ),
+                    'desc'    => __( 'Specify a prefix to show before the tabs', 'wexteam' ),
+                    'type'    => 'text',
+                    'default' => 'Categories:',
+                ),
+                array(
+                    'name'    => 'wext_wcpt_tabs_exclude',
+                    'label'   => __( 'Categories to Exclude', 'wexteam' ),
+                    'desc'    => __( 'Specify a comma separated list of category IDs to exclude like: 123,908,220', 'wexteam' ),
+                    'type'    => 'text',
+                    'default' => '',
                 )
             ),
             'wext_wcpt_style' => array(

@@ -9,8 +9,6 @@ Author URI: https://websavers.ca
 Original Author: weXteam
 Original Author URI: http://wexteam.com
 Version: 1.5
-
-
 */
 
 
@@ -27,7 +25,7 @@ if ( !defined( 'ABSPATH' ) ) {
  * Settings file and api add for wcpt
  *-----------------------------------------------------*/
 require_once dirname( __FILE__ ) . '/wcpt-settings-api.php';
-require_once dirname( __FILE__ ) . '/wcpt-settings-fild.php';
+require_once dirname( __FILE__ ) . '/wcpt-settings-field.php';
 
 new Wext_Wc_Product_Tab();
 
@@ -113,19 +111,28 @@ function wext_wc_product_tab_shortcode($atts){
    extract(shortcode_atts(array(
       'posts' => 1,
    ), $atts));
+
+	$uncategorized = get_term_by('slug', 'uncategorized', 'product_cat');
+
+	$cols = wext_wcpt_get_option( 'wext_wcpt_column_number', 'wext_wcpt_settings', 5 ); 
+	$cols = 12 / (int) $cols; //Convert to boostrap col class numbering
+	
+	$exclude_cats = wext_wcpt_get_option( 'wext_wcpt_tabs_exclude', 'wext_wcpt_settings', 5 );
+	$exclude_cats .= ",{$uncategorized->term_id}";
 ?>
 
 <div class="category-tab"><!--category-tab-->
 	<div class="col-md-12 col-sm-12">
 		<?php if(!is_tax()) {
 			$terms = get_terms("product_cat", array(
-				'exclude' => 'Uncategorized',
-    		'hide_empty' => true,
+				'exclude' => $exclude_cats,
+    		'hide_empty' => 1,
 			));
 			$count = count($terms);
 			
 			if ( $count > 0 ){ ?>
 				<ul class="nav nav-tabs">
+					<li class="prefix"><?php echo wext_wcpt_get_option( 'wext_wcpt_tab_prefix', 'wext_wcpt_settings', 5 ); ?></li>
 					<?php
 						$tab_count = 0;
 
@@ -145,8 +152,8 @@ function wext_wc_product_tab_shortcode($atts){
 			
 	<?php if(!is_tax()) {
 			$terms = get_terms("product_cat", array(
-				'exclude' => 'Uncategorized',
-    		'hide_empty' => true,
+				'exclude' => $exclude_cats,
+    		'hide_empty' => 1,
 			));
 			$count = count($terms);
 			if ( $count > 0 ){ 
@@ -158,33 +165,31 @@ function wext_wc_product_tab_shortcode($atts){
 						<?php
 						global $post;
 						$args = array( 
-							'posts_per_page'=> wext_wcpt_get_option( 'wext_wcpt_product_number', 'wext_wcpt_settings', 4 ), 
-							//'post_type'		=> 'product', 
-							'product_cat' 	=> $term->slug,
-							'orderby' 		=> wext_wcpt_get_option( 'wext_wcpt_product_orderby', 'wext_wcpt_settings', 'name' ), 
-							'order' 		=> wext_wcpt_get_option( 'wext_wcpt_product_order', 'wext_wcpt_settings', 'ASC' ), 
+							'posts_per_page'	=> wext_wcpt_get_option( 'wext_wcpt_product_number', 'wext_wcpt_settings', 4 ), 
+							'category'				=> $term->slug,
+							'visibility' 			=> 'catalog',
+							'orderby' 				=> wext_wcpt_get_option( 'wext_wcpt_product_orderby', 'wext_wcpt_settings', 'name' ), 
+							'order' 					=> wext_wcpt_get_option( 'wext_wcpt_product_order', 'wext_wcpt_settings', 'ASC' ), 
 						);
 						$products = wc_get_products( $args );
-						//$myposts = get_posts( $args );
-
-						foreach( $products as $post ) : setup_postdata($post); ?>
 						
-						<?php $h_c_p_img = wp_get_attachment_image_src( get_post_thumbnail_id( $post->ID ), 'home_cat_pod_image' );?>
+						foreach( $products as $product ) : ?>
+						
+						<?php $h_c_p_img = wp_get_attachment_image_src( get_post_thumbnail_id( $product->get_id() ), 'home_cat_pod_image' );?>
 
 			
-						<div class="col-md-3 col-sm-6 col-xs-6 single-product-wrapper">
+						<div class="col-md-<?php echo $cols; ?> col-sm-6 col-xs-6 single-product-wrapper">
 							<div class="product-image-wrapper">
 								<div class="single-products">
 									<div class="productinfo text-center">
-										<img src="<?php echo $h_c_p_img[0]; ?>" alt="" />
-										
-										<?php global $product; if ( $price_html = $product->get_price_html() ) : ?>
-												<h2><span class="price"><?php echo $price_html; ?></span></h2>
+										<a href="<?php echo get_permalink( $product->get_id() ); ?>">
+											<img src="<?php echo $h_c_p_img[0]; ?>" alt="<?php echo $product->get_name(); ?>" />
+											<h2 style="text-decoration: none"><?php echo $product->get_name(); ?></h2>
+										</a>
+										<?php if ( $price_html = $product->get_price_html() ) : ?>
+												<span class="price"><?php echo $price_html; ?></span>
 										<?php endif; ?>
-										
-										<p><?php the_title(); ?></p>
-										
-										<a class="btn btn-default add-to-cart button add_to_cart_button product_type_simple added" data-product_sku="5220" data-product_id="<?php the_id(); ?>" rel="nofollow" href="/ecommerce/?post_type=product&amp;add-to-cart=<?php the_id(); ?>"><i class="fa fa-shopping-cart"></i>Add to cart</a>
+										<a class="btn btn-default add-to-cart button add_to_cart_button product_type_simple added" data-product_id="<?php $product->get_id(); ?>" rel="nofollow" href="/?post_type=product&amp;add-to-cart=<?php $product->get_id(); ?>"><i class="fa fa-shopping-cart"></i>Add to cart</a>
 									</div>
 									
 								</div>
