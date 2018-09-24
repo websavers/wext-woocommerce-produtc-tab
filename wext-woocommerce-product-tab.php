@@ -118,7 +118,10 @@ function wext_wc_product_tab_shortcode($atts){
 <div class="category-tab"><!--category-tab-->
 	<div class="col-md-12 col-sm-12">
 		<?php if(!is_tax()) {
-			$terms = get_terms("product_cat");
+			$terms = get_terms("product_cat", array(
+				'exclude' => 'Uncategorized',
+    		'hide_empty' => true,
+			));
 			$count = count($terms);
 			
 			if ( $count > 0 ){ ?>
@@ -141,7 +144,10 @@ function wext_wc_product_tab_shortcode($atts){
 	<div class="tab-content">
 			
 	<?php if(!is_tax()) {
-			$terms = get_terms("product_cat");
+			$terms = get_terms("product_cat", array(
+				'exclude' => 'Uncategorized',
+    		'hide_empty' => true,
+			));
 			$count = count($terms);
 			if ( $count > 0 ){ 
 				foreach ( $terms as $term ) {	
@@ -153,14 +159,15 @@ function wext_wc_product_tab_shortcode($atts){
 						global $post;
 						$args = array( 
 							'posts_per_page'=> wext_wcpt_get_option( 'wext_wcpt_product_number', 'wext_wcpt_settings', 4 ), 
-							'post_type'		=> 'product', 
+							//'post_type'		=> 'product', 
 							'product_cat' 	=> $term->slug,
 							'orderby' 		=> wext_wcpt_get_option( 'wext_wcpt_product_orderby', 'wext_wcpt_settings', 'name' ), 
 							'order' 		=> wext_wcpt_get_option( 'wext_wcpt_product_order', 'wext_wcpt_settings', 'ASC' ), 
 						);
-						$myposts = get_posts( $args );
+						$products = wc_get_products( $args );
+						//$myposts = get_posts( $args );
 
-						foreach( $myposts as $post ) : setup_postdata($post); ?>
+						foreach( $products as $post ) : setup_postdata($post); ?>
 						
 						<?php $h_c_p_img = wp_get_attachment_image_src( get_post_thumbnail_id( $post->ID ), 'home_cat_pod_image' );?>
 
