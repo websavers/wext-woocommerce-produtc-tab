@@ -168,6 +168,7 @@ function wext_wc_product_tab_shortcode($atts){
 							'posts_per_page'	=> wext_wcpt_get_option( 'wext_wcpt_product_number', 'wext_wcpt_settings', 4 ), 
 							'category'				=> $term->slug,
 							'visibility' 			=> 'catalog',
+							'status'					=> 'publish', //I'm surprised this is necessary to not show drafts. You'd think it would be default.
 							'orderby' 				=> wext_wcpt_get_option( 'wext_wcpt_product_orderby', 'wext_wcpt_settings', 'name' ), 
 							'order' 					=> wext_wcpt_get_option( 'wext_wcpt_product_order', 'wext_wcpt_settings', 'ASC' ), 
 						);
